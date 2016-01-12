@@ -48,7 +48,7 @@ def initialize() {
 	
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
-    state.queue = []
+    state.queue = [:]
     state.failureCount=0
     state.scheduled=false
 }
@@ -89,12 +89,13 @@ private queueValue(evt, Closure convert) {
     
     log.debug "Logging to queue ${keyId} = ${value}"
 
-	if( state.queue == [] ) {
-      def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss' ))
-      state.queue << "Time=${eventTime}"
+	if( state.queue == [:] ) {
+      def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
+      state.queue.put("Time", eventTime)
     }
     
-    state.queue << "${keyId}=${value}"
+    state.queue.put(keyId, value)
+
     scheduleQueue()
 }
 
@@ -116,17 +117,18 @@ def runSchedule() {
 }
 
 private resetState() {
-	state.queue = []
+	state.queue = [:]
     state.failureCount=0
     state.scheduled=false
 }
 
 def processQueue() {
     log.debug "Processing Queue"
-    if (state.queue != []) {
+    if (state.queue != [:]) {
         def url = "https://script.google.com/macros/s/${urlKey}/exec?"
-        for ( e in state.queue ) { url+="${e}&" }
+        for ( e in state.queue ) { url+="${e.key}=${e.value}&" }
         url = url[0..-2]
+        log.debug(url)
         try {
 			def putParams = [
 				uri: url]
