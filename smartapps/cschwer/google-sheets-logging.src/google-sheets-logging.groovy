@@ -28,6 +28,7 @@ preferences {
 	section("Log devices...") {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
+        input "thermostatSetPoint", "capability.thermostat", title: "Thermostat Setpoints", required: false, multiple: true
 	}
 
 	section ("Google Sheets script url key...") {
@@ -48,6 +49,7 @@ def initialize() {
 	
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
+    subscribe(thermostatSetPoint, "heatingSetpoint", handleTemperatureEvent)
     state.queue = [:]
     state.failureCount=0
     state.scheduled=false
