@@ -95,26 +95,18 @@ private queueValue(evt, Closure convert) {
     }
     
     state.queue << "${keyId}=${value}"
-    
-    log.debug(state.queue)
-    
     scheduleQueue()
 }
 
 def scheduleQueue() {
+	if(state.failureCount >= 3) {
+	    log.debug "Too many failure, clearing queue"
+        resetState()
+    }
 
-	log.debug "scheduled ${state.scheduled}"
-    log.debug "failurecount ${state.failureCount}"
-    log.debug(state.queue)
-    if(!state.scheduled && state.failureCount < 3) {
+    if(!state.scheduled) {
     	runIn(60*3, runSchedule)
         state.scheduled=true
-    }
-    
-    if(state.failureCount >= 3) {
-    log.debug "reseting queue"
-    	state.queue = []
-        state.failureCount = 0
     }
 }
 
@@ -123,21 +115,19 @@ def runSchedule() {
     processQueue()
 }
 
-def processQueue() {
+private resetState() {
+	state.queue = []
+    state.failureCount=0
+    state.scheduled=false
+}
 
-    log.debug "processQueue"
-    log.debug(state.queue)
+def processQueue() {
+    log.debug "Processing Queue"
     if (state.queue != []) {
-        log.debug "Events: ${state.queue}"
         def url = "https://script.google.com/macros/s/${urlKey}/exec?"
-        for ( e in state.queue ) {
-        log.debug(e)
-		    url+="${e}&"
-		}
+        for ( e in state.queue ) { url+="${e}&" }
         url = url[0..-2]
         try {
-		    log.debug "${url}"
-    
 			def putParams = [
 				uri: url]
 
@@ -149,7 +139,7 @@ def processQueue() {
                     scheduleQueue()
 				} else {
         			log.debug "Google accepted event(s)"
-            		state.queue = []
+                    resetState()
         		}
 			}
         } catch(e) {
