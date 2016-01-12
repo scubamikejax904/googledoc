@@ -51,12 +51,10 @@ def initialize() {
     state.queue = []
     state.failureCount=0
     state.scheduled=false
-    //schedule("0/5 * * * * ?", processQueue)
 }
 
 def handleTemperatureEvent(evt) {
     queueValue(evt) { it.toString() }
-	//sendValue(evt) { it.toString() }
 }
 
 def handleContactEvent(evt) {
@@ -91,13 +89,6 @@ private queueValue(evt, Closure convert) {
     
     log.debug "Logging to queue ${keyId} = ${value}"
 
-    //def url = "https://grovestreams.com/api/feed?api_key=${channelKey}&compId=${compId}&${streamId}=${value}&time=${now()}"
-
-//    def putParams = [
-//        uri: url,
-//        body: []
-//    ]
-
 	if( state.queue == [] ) {
       def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss' ))
       state.queue << "Time=${eventTime}"
@@ -116,8 +107,7 @@ def scheduleQueue() {
     log.debug "failurecount ${state.failureCount}"
     log.debug(state.queue)
     if(!state.scheduled && state.failureCount < 3) {
-    	//runIn(60*3, runSchedule)
-        runIn(30, runSchedule)
+    	runIn(60*3, runSchedule)
         state.scheduled=true
     }
     
