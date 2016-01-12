@@ -48,24 +48,31 @@ def initialize() {
 	
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
+    state.queue = []
+    state.failureCount=0
+    state.scheduled=false
+    //schedule("0/5 * * * * ?", processQueue)
 }
 
 def handleTemperatureEvent(evt) {
-	sendValue(evt) { it.toString() }
+    queueValue(evt) { it.toString() }
+	//sendValue(evt) { it.toString() }
 }
 
 def handleContactEvent(evt) {
 	sendValue(evt) { it == "open" ? "true" : "false" }
 }
 
+
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
 	def value = convert(evt.value)
     
-	log.debug "Logging to GoogleSheets ${compId}, ${streamId} = ${value}"
+	log.debug "Logging to GoogleSheets ${keyId} = ${value}"
     
 	def url = "https://script.google.com/macros/s/${urlKey}/exec?${keyId}=${value}"
     log.debug "${url}"
+    
 	def putParams = [
 		uri: url]
 
@@ -76,3 +83,89 @@ private sendValue(evt, Closure convert) {
 		}
 	}
 }
+
+
+private queueValue(evt, Closure convert) {
+	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
+	def value = convert(evt.value)
+    
+    log.debug "Logging to queue ${keyId} = ${value}"
+
+    //def url = "https://grovestreams.com/api/feed?api_key=${channelKey}&compId=${compId}&${streamId}=${value}&time=${now()}"
+
+//    def putParams = [
+//        uri: url,
+//        body: []
+//    ]
+
+	if( state.queue == [] ) {
+      def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss' ))
+      state.queue << "Time=${eventTime}"
+    }
+    
+    state.queue << "${keyId}=${value}"
+    
+    log.debug(state.queue)
+    
+    scheduleQueue()
+}
+
+def scheduleQueue() {
+
+	log.debug "scheduled ${state.scheduled}"
+    log.debug "failurecount ${state.failureCount}"
+    log.debug(state.queue)
+    if(!state.scheduled && state.failureCount < 3) {
+    	//runIn(60*3, runSchedule)
+        runIn(30, runSchedule)
+        state.scheduled=true
+    }
+    
+    if(state.failureCount >= 3) {
+    log.debug "reseting queue"
+    	state.queue = []
+        state.failureCount = 0
+    }
+}
+
+def runSchedule() {
+	state.scheduled=false
+    processQueue()
+}
+
+def processQueue() {
+
+    log.debug "processQueue"
+    log.debug(state.queue)
+    if (state.queue != []) {
+        log.debug "Events: ${state.queue}"
+        def url = "https://script.google.com/macros/s/${urlKey}/exec?"
+        for ( e in state.queue ) {
+        log.debug(e)
+		    url+="${e}&"
+		}
+        url = url[0..-2]
+        try {
+		    log.debug "${url}"
+    
+			def putParams = [
+				uri: url]
+
+			httpGet(putParams) { response ->
+    			log.debug(response.status)
+				if (response.status != 200 ) {
+					log.debug "Google logging failed, status = ${response.status}"
+                    state.failureCount++
+                    scheduleQueue()
+				} else {
+        			log.debug "Google accepted event(s)"
+            		state.queue = []
+        		}
+			}
+        } catch(e) {
+            def errorInfo = "Error sending value: ${e}"
+            log.error errorInfo
+        }
+	}
+}
+
