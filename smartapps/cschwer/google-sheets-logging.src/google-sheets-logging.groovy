@@ -91,24 +91,27 @@ private queueValue(evt, Closure convert) {
     
     log.debug "Logging to queue ${keyId} = ${value}"
 
-	if( state.queue == [:] ) {
-      def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
-      state.queue.put("Time", eventTime)
-    }
+	if(value) {
+		if( state.queue == [:] ) {
+      		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
+      		state.queue.put("Time", eventTime)
+    	}
     
-    state.queue.put(keyId, value)
+    	state.queue.put(keyId, value)
+        log.debug(state.queue)
 
-    scheduleQueue()
+    	scheduleQueue()
+	}
 }
 
 def scheduleQueue() {
 	if(state.failureCount >= 3) {
-	    log.debug "Too many failure, clearing queue"
+	    log.debug "Too many failures, clearing queue"
         resetState()
     }
 
     if(!state.scheduled) {
-    	runIn(60*3, runSchedule)
+    	runIn(60*5, runSchedule)
         state.scheduled=true
     }
 }
