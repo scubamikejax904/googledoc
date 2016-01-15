@@ -41,18 +41,21 @@ def installed() {
 }
 
 def updated() {
+	log.debug "Updated"
 	unsubscribe()
 	initialize()
 }
 
 def initialize() {
-	
+	log.debug "Initialized"
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
     subscribe(thermostatSetPoint, "heatingSetpoint", handleTemperatureEvent)
     state.queue = [:]
     state.failureCount=0
     state.scheduled=false
+    state.lastEvent=0
+    runEvery1Hour(watchdogTask)
 }
 
 def handleTemperatureEvent(evt) {
@@ -63,6 +66,14 @@ def handleContactEvent(evt) {
 	sendValue(evt) { it == "open" ? "true" : "false" }
 }
 
+def watchdogTask() {
+	//Check if we have not processed an event in the past 2 hours 1000*60*60*2
+    if(now()-state.lastEvent > 7200000) {
+    	log.debug "Updating subscription"
+        sendEvent(name: "autoupdate", value: 1)
+    	updated()
+    }
+}
 
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
@@ -90,7 +101,10 @@ private queueValue(evt, Closure convert) {
 	def value = convert(evt.value)
     
     log.debug "Logging to queue ${keyId} = ${value}"
-
+	
+    state.lastEvent=evt.date.time
+    log.debug(state.lastEvent)
+    
 	if(value) {
 		if( state.queue == [:] ) {
       		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
@@ -155,4 +169,3 @@ def processQueue() {
         }
 	}
 }
-
