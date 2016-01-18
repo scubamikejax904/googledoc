@@ -29,6 +29,8 @@ preferences {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "thermostatSetPoint", "capability.thermostat", title: "Thermostat Setpoints", required: false, multiple: true
+        input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "5", "10", "15"], defaultValue:"5"
+        input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
 	}
 
 	section ("Google Sheets script url key...") {
@@ -37,6 +39,7 @@ preferences {
 }
 
 def installed() {
+	setOriginalState()
 	initialize()
 }
 
@@ -44,6 +47,10 @@ def updated() {
 	log.debug "Updated"
 	unsubscribe()
 	initialize()
+    if(settings.resetVals == "yes") {
+    	setOriginalState()
+        settings.resetVals = "no"
+    }
 }
 
 def initialize() {
@@ -51,29 +58,42 @@ def initialize() {
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
     subscribe(thermostatSetPoint, "heatingSetpoint", handleTemperatureEvent)
-    state.queue = [:]
+}
+
+def setOriginalState() {
+	log.debug "Set original state"
+	unschedule()
+	state.queue = [:]
     state.failureCount=0
     state.scheduled=false
-    state.lastEvent=0
-    runEvery1Hour(watchdogTask)
+    state.lastSchedule=0
 }
 
 def handleTemperatureEvent(evt) {
-    queueValue(evt) { it.toString() }
+	if(settings.queueTime > 0) {
+    	queueValue(evt) { it.toString() }
+    } else {
+    	sendValue(evt) { it.toString() }
+    }
 }
 
 def handleContactEvent(evt) {
 	sendValue(evt) { it == "open" ? "true" : "false" }
 }
 
+/*
 def watchdogTask() {
-	//Check if we have not processed an event in the past 2 hours 1000*60*60*2
-    if(now()-state.lastEvent > 7200000) {
-    	log.debug "Updating subscription"
-        sendEvent(name: "autoupdate", value: 1)
-    	updated()
-    }
+	def t = now() - state.lastSchedule
+    sendEvent(name: "watchdogTaskLE", value: t)
+	//Check if we have scheduled a not processed an event in the past 2 hours 1000*60*60*2
+    if (t > 7200000) {
+    	log.warn "Scheduled event is toast. Restarting..."
+        sendEvent(name: "watchdogTaskRestart", value: 1)
+        updated()
+        return
+	}
 }
+*/
 
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
@@ -95,17 +115,15 @@ private sendValue(evt, Closure convert) {
 	}
 }
 
-
 private queueValue(evt, Closure convert) {
-	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
-	def value = convert(evt.value)
+	if( evt?.value ) {
+    	
+    	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
+		def value = convert(evt.value)
     
-    log.debug "Logging to queue ${keyId} = ${value}"
-	
-    state.lastEvent=evt.date.time
-    log.debug(state.lastEvent)
+    	log.debug "Logging to queue ${keyId} = ${value}"
+	    //log.debug(state.lastEvent)
     
-	if(value) {
 		if( state.queue == [:] ) {
       		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
       		state.queue.put("Time", eventTime)
@@ -115,6 +133,7 @@ private queueValue(evt, Closure convert) {
         log.debug(state.queue)
 
     	scheduleQueue()
+	    //state.lastEvent=evt.date.time
 	}
 }
 
@@ -123,16 +142,19 @@ def scheduleQueue() {
 	    log.debug "Too many failures, clearing queue"
         resetState()
     }
-
+	
     if(!state.scheduled) {
-    	runIn(60*5, runSchedule)
+    	runIn(settings.queueTime.toInteger() * 60, processQueue)
         state.scheduled=true
+        state.lastSchedule=now()
+    } else if ((now() - state.lastSchedule) > state.timeToQueue*4000) {
+		// if event has been queued for four times the amount of time it should be, then we are probably stuck
+        sendEvent(name: "scheduleFailure", value: now())
+        unschedule()
+    	runIn(settings.queueTime.toInteger() * 60, processQueue)
+        state.scheduled=true
+        state.lastSchedule=now()
     }
-}
-
-def runSchedule() {
-	state.scheduled=false
-    processQueue()
 }
 
 private resetState() {
@@ -142,6 +164,7 @@ private resetState() {
 }
 
 def processQueue() {
+	state.scheduled=false
     log.debug "Processing Queue"
     if (state.queue != [:]) {
         def url = "https://script.google.com/macros/s/${urlKey}/exec?"
