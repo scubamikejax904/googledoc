@@ -29,13 +29,16 @@ preferences {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "thermostatSetPoint", "capability.thermostat", title: "Thermostat Setpoints", required: false, multiple: true
-        input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "5", "10", "15"], defaultValue:"5"
-        input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
 	}
 
 	section ("Google Sheets script url key...") {
 		input "urlKey", "text", title: "URL key"
 	}
+    
+    section ("Technical settings") {
+        input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "5", "10", "15"], defaultValue:"5"
+        input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
+    }
 }
 
 def installed() {
@@ -81,20 +84,6 @@ def handleContactEvent(evt) {
 	sendValue(evt) { it == "open" ? "true" : "false" }
 }
 
-/*
-def watchdogTask() {
-	def t = now() - state.lastSchedule
-    sendEvent(name: "watchdogTaskLE", value: t)
-	//Check if we have scheduled a not processed an event in the past 2 hours 1000*60*60*2
-    if (t > 7200000) {
-    	log.warn "Scheduled event is toast. Restarting..."
-        sendEvent(name: "watchdogTaskRestart", value: 1)
-        updated()
-        return
-	}
-}
-*/
-
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
 	def value = convert(evt.value)
@@ -122,7 +111,6 @@ private queueValue(evt, Closure convert) {
 		def value = convert(evt.value)
     
     	log.debug "Logging to queue ${keyId} = ${value}"
-	    //log.debug(state.lastEvent)
     
 		if( state.queue == [:] ) {
       		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
@@ -133,13 +121,13 @@ private queueValue(evt, Closure convert) {
         log.debug(state.queue)
 
     	scheduleQueue()
-	    //state.lastEvent=evt.date.time
 	}
 }
 
 def scheduleQueue() {
 	if(state.failureCount >= 3) {
 	    log.debug "Too many failures, clearing queue"
+        sendEvent(name: "queueFailure", value: now())
         resetState()
     }
 	
