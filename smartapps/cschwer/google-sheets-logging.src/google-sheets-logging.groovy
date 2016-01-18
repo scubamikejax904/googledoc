@@ -147,8 +147,8 @@ def scheduleQueue() {
     	runIn(settings.queueTime.toInteger() * 60, processQueue)
         state.scheduled=true
         state.lastSchedule=now()
-    } else if ((now() - state.lastSchedule) > state.timeToQueue*4000) {
-		// if event has been queued for four times the amount of time it should be, then we are probably stuck
+    } else if ((now() - state.lastSchedule) > settings.queueTime.toInteger()*120000) {
+		// if event has been queued for twice the amount of time it should be, then we are probably stuck
         sendEvent(name: "scheduleFailure", value: now())
         unschedule()
     	runIn(settings.queueTime.toInteger() * 60, processQueue)
