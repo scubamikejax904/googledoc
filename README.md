@@ -6,7 +6,7 @@ step 2: Make a copy: Click File -> Make a Copy
 
 step 3: Name spreadsheet whatever you want
 
-step 4: Get spreadsheet id from URL, example:
+step 4: Get your new spreadsheet id from URL, example:
 https://docs.google.com/spreadsheets/d/17_zrk7Fh-4LKTRCIU3Ml2RruJ-WESyXfM5sIoyei8tk/edit#gid=0  
 	example id is "17_zrk7Fh-4LKTRCIU3Ml2RruJ-WESyXfM5sIoyei8tk"
 	
