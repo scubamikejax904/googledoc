@@ -28,7 +28,7 @@ preferences {
 	section("Log devices...") {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
-        input "thermostatSetPoint", "capability.thermostat", title: "Thermostat Setpoints", required: false, multiple: true
+        input "thermostatHeatSetPoint", "capability.thermostat", title: "Thermostat Heat Setpoints", required: false, multiple: true
 	}
 
 	section ("Google Sheets script url key...") {
@@ -60,7 +60,7 @@ def initialize() {
 	log.debug "Initialized"
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
-    subscribe(thermostatSetPoint, "heatingSetpoint", handleTemperatureEvent)
+    subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleTemperatureEvent)
 }
 
 def setOriginalState() {
