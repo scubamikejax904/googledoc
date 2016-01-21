@@ -1,4 +1,4 @@
-# googleDocsLogging
+# SmartThings Google Sheets Logging
 
 step 1: Open spreadsheet https://docs.google.com/spreadsheets/d/1ebpE4c7P7X-fwd0X48Z_4hZzzrleKLiDd0sx7m-ebx4/edit?usp=sharing
 
