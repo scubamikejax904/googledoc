@@ -26,9 +26,9 @@ https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHW
 Step 11: Extract Url key for your new webapp, it is between /s/ and /exec: AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4
 
 Step 12 (Optional): Test out your new webapp, add this to the end of the url from step 10: ?Temp1=15&Temp2=30
-ie: https://script.google.com/macros/s/AKfycbz--wgluMsubLnhamicyJVFkYdcWw40SP9M5WoehX5ebBmUBGYV/exec?Temp1=15&Temp2=30
+ie: https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec?Temp1=15&Temp2=30
 
-Step 13 (Optional): Delete test data from spreadsheet, you should have new values in B2, B3, A1, A2, A3, delete all the test data
+Step 13 (Optional): Delete test data from spreadsheet, you should have new values in B1, C1, A2, B2, C2, delete all the test data
 
 Step 14: In smartthings ide create new Smartapp From Code: https://github.com/cschwer/googleDocsLogging/blob/master/smartapps/cschwer/google-sheets-logging.src/google-sheets-logging.groovy
 
