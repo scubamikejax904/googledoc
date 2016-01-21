@@ -105,6 +105,7 @@ private sendValue(evt, Closure convert) {
 }
 
 private queueValue(evt, Closure convert) {
+	checkAndProcessQueue()
 	if( evt?.value ) {
     	
     	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
@@ -124,6 +125,15 @@ private queueValue(evt, Closure convert) {
 	}
 }
 
+private checkAndProcessQueue() {
+    if (state.scheduled && ((now() - state.lastSchedule) > (settings.queueTime.toInteger()*120000))) {
+		// if event has been queued for twice the amount of time it should be, then we are probably stuck
+        sendEvent(name: "scheduleFailure", value: now())
+        unschedule()
+    	processQueue()
+    }
+}
+
 def scheduleQueue() {
 	if(state.failureCount >= 3) {
 	    log.debug "Too many failures, clearing queue"
@@ -135,15 +145,9 @@ def scheduleQueue() {
     	runIn(settings.queueTime.toInteger() * 60, processQueue)
         state.scheduled=true
         state.lastSchedule=now()
-    } else if ((now() - state.lastSchedule) > settings.queueTime.toInteger()*120000) {
-		// if event has been queued for twice the amount of time it should be, then we are probably stuck
-        sendEvent(name: "scheduleFailure", value: now())
-        unschedule()
-    	runIn(settings.queueTime.toInteger() * 60, processQueue)
-        state.scheduled=true
-        state.lastSchedule=now()
-    }
+    } 
 }
+
 
 private resetState() {
 	state.queue = [:]
