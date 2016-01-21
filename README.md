@@ -4,24 +4,43 @@ step 1: Open spreadsheet https://docs.google.com/spreadsheets/d/1ebpE4c7P7X-fwd0
 
 step 2: Make a copy: Click File -> Make a Copy
 
+![alt tag](img/stgsl2.png)
+
 step 3: Name spreadsheet whatever you want
+
+![alt tag](img/stgsl3.png)
 
 step 4: Get your new spreadsheet id from URL,Example:
 https://docs.google.com/spreadsheets/d/169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk/edit#gid=0  
 	example id is "169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk"
 	
+![alt tag](img/stgsl4.png)
+
 step 5: Open script: Click Tools -> Script Editor
+
+![alt tag](img/stgsl5.png)
 
 Step 6: replace  "REPLACE ME WITH SPREADSHEET ID" with sheet id from step 4
 
+![alt tag](img/stgsl6.png)
+
 Step 7: Deploy webapp: Click Publish -> Deploy as web app...
+
+![alt tag](img/stgsl7.png)
 
 Step 8: Change Who has access to the app to "Anyone, even anonymous"
 
+![alt tag](img/stgsl8.png)
+
 Step 9: Approve the access to the app
+
+![alt tag](img/stgsl9.png)
+![alt tag](img/stgsl9b.png)
 
 Step 10: Copy the url on the confirmation page, Example:
 https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec
+
+![alt tag](img/stgsl10.png)
 
 Step 11: Extract Url key for your new webapp, it is between /s/ and /exec: AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4
 
