@@ -6,7 +6,7 @@ step 2: Make a copy: Click File -> Make a Copy
 
 step 3: Name spreadsheet whatever you want
 
-step 4: Get your new spreadsheet id from URL, example:
+step 4: Get your new spreadsheet id from URL,Example:
 https://docs.google.com/spreadsheets/d/169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk/edit#gid=0  
 	example id is "169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk"
 	
@@ -20,10 +20,10 @@ Step 8: Change Who has access to the app to "Anyone, even anonymous"
 
 Step 9: Approve the access to the app
 
-Step 10: Copy the url on the confirmation page:
-https://script.google.com/macros/s/AKfycbz--wgluMsubLnhamicyJVFkYdcWw40SP9M5WoehX5ebBmUBGYV/exec
+Step 10: Copy the url on the confirmation page, Example:
+https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec
 
-Step 11: Extract Url key for your new webapp, it is between /s/ and /exec: AKfycbz--wgluMsubLnhamicyJVFkYdcWw40SP9M5WoehX5ebBmUBGYV
+Step 11: Extract Url key for your new webapp, it is between /s/ and /exec: AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4
 
 Step 12 (Optional): Test out your new webapp, add this to the end of the url from step 10: ?Temp1=15&Temp2=30
 ie: https://script.google.com/macros/s/AKfycbz--wgluMsubLnhamicyJVFkYdcWw40SP9M5WoehX5ebBmUBGYV/exec?Temp1=15&Temp2=30
