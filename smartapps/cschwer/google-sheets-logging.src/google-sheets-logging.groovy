@@ -29,6 +29,8 @@ preferences {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "thermostatHeatSetPoint", "capability.thermostat", title: "Thermostat Heat Setpoints", required: false, multiple: true
+        input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
+        input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
 	}
 
 	section ("Google Sheets script url key...") {
@@ -61,6 +63,8 @@ def initialize() {
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
     subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleTemperatureEvent)
+    subscribe(energyMeters, "energy", handleEnergyEvent)
+    subscribe(powerMeters, "power", handlePowerEvent)
 }
 
 def setOriginalState() {
@@ -70,6 +74,14 @@ def setOriginalState() {
     state.failureCount=0
     state.scheduled=false
     state.lastSchedule=0
+}
+
+def handleEnergyEvent(evt) {
+	if(settings.queueTime > 0) {
+    	queueValue(evt) { it.toString() }
+    } else {
+    	sendValue(evt) { it.toString() }
+    }
 }
 
 def handleTemperatureEvent(evt) {
