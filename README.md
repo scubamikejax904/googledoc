@@ -28,7 +28,7 @@ Step 7: Deploy webapp: Click Publish -> Deploy as web app...
 
 ![alt tag](img/stgsl7.png)
 
-Step 8: Change Who has access to the app to "Anyone, even anonymous"
+Step 8: Change Who has access to the app to "Anyone, even anonymous".  Please note, if any one gets a hold of your published endpoint, they will be able to send data to your spreadsheet but they will not be able to view any of it.
 
 ![alt tag](img/stgsl8.png)
 
