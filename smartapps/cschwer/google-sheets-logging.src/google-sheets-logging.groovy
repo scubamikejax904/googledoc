@@ -64,7 +64,7 @@ def initialize() {
 	subscribe(contacts, "contact", handleContactEvent)
     subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleTemperatureEvent)
     subscribe(energyMeters, "energy", handleEnergyEvent)
-    subscribe(powerMeters, "power", handlePowerEvent)
+    subscribe(powerMeters, "power", handleEnergyEvent)
 }
 
 def setOriginalState() {
