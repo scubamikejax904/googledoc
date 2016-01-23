@@ -60,48 +60,24 @@ def updated() {
 
 def initialize() {
 	log.debug "Initialized"
-	subscribe(temperatures, "temperature", handleTemperatureEvent)
+	subscribe(temperatures, "temperature", handleNumberEvent)
 	subscribe(contacts, "contact", handleContactEvent)
-    subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleSetPointEvent)
-    subscribe(energyMeters, "energy", handleEnergyEvent)
-    subscribe(powerMeters, "power", handlePowerEvent)
+    subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleNumberEvent)
+    subscribe(energyMeters, "energy", handleNumberEvent)
+    subscribe(powerMeters, "power", handleNumberEvent)
 }
 
 def setOriginalState() {
 	log.debug "Set original state"
 	unschedule()
-	state.queue = [:]
-    state.failureCount=0
-    state.scheduled=false
-    state.lastSchedule=0
+	atomicState.queue = [:]
+    atomicState.failureCount=0
+    atomicState.scheduled=false
+    atomicState.lastSchedule=0
 }
 
-def handleEnergyEvent(evt) {
-	if(settings.queueTime > 0) {
-    	queueValue(evt) { it.toString() }
-    } else {
-    	sendValue(evt) { it.toString() }
-    }
-}
-
-def handlePowerEvent(evt) {
-	if(settings.queueTime > 0) {
-    	queueValue(evt) { it.toString() }
-    } else {
-    	sendValue(evt) { it.toString() }
-    }
-}
-
-def handleTemperatureEvent(evt) {
-	if(settings.queueTime > 0) {
-    	queueValue(evt) { it.toString() }
-    } else {
-    	sendValue(evt) { it.toString() }
-    }
-}
-
-def handleSetPointEvent(evt) {
-	if(settings.queueTime > 0) {
+def handleNumberEvent(evt) {
+	if(settings.queueTime.toInteger() > 0) {
     	queueValue(evt) { it.toString() }
     } else {
     	sendValue(evt) { it.toString() }
@@ -109,7 +85,7 @@ def handleSetPointEvent(evt) {
 }
 
 def handleContactEvent(evt) {
-	if(settings.queueTime > 0) {
+	if(settings.queueTime.toInteger() > 0) {
     	queueValue(evt) { it == "open" ? "true" : "false" }
     } else {
 		sendValue(evt) { it == "open" ? "true" : "false" }
@@ -144,21 +120,31 @@ private queueValue(evt, Closure convert) {
 		def value = convert(evt.value)
     
     	log.debug "Logging to queue ${keyId} = ${value}"
-    
-		if( state.queue == [:] ) {
+    	
+        
+		if( atomicState.queue == [:] ) {
       		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
-      		state.queue.put("Time", eventTime)
+            addToQueue("Time", eventTime)
     	}
-    
-    	state.queue.put(keyId, value)
-        log.debug(state.queue)
+		addToQueue(keyId, value)
+        
+        log.debug(atomicState.queue)
 
     	scheduleQueue()
 	}
 }
 
+/*
+ * atomicState acts differently from state, so we have to get the map, put the new item and copy the map back to the atomicState
+ */
+private addToQueue(key, value) {
+	def queue = atomicState.queue
+	queue.put(key, value)
+	atomicState.queue = queue
+}
+
 private checkAndProcessQueue() {
-    if (state.scheduled && ((now() - state.lastSchedule) > (settings.queueTime.toInteger()*120000))) {
+    if (atomicState.scheduled && ((now() - atomicState.lastSchedule) > (settings.queueTime.toInteger()*120000))) {
 		// if event has been queued for twice the amount of time it should be, then we are probably stuck
         sendEvent(name: "scheduleFailure", value: now())
         unschedule()
@@ -167,32 +153,32 @@ private checkAndProcessQueue() {
 }
 
 def scheduleQueue() {
-	if(state.failureCount >= 3) {
+	if(atomicState.failureCount >= 3) {
 	    log.debug "Too many failures, clearing queue"
         sendEvent(name: "queueFailure", value: now())
         resetState()
     }
 	
-    if(!state.scheduled) {
+    if(!atomicState.scheduled) {
     	runIn(settings.queueTime.toInteger() * 60, processQueue)
-        state.scheduled=true
-        state.lastSchedule=now()
+        atomicState.scheduled=true
+        atomicState.lastSchedule=now()
     } 
 }
 
 
 private resetState() {
-	state.queue = [:]
-    state.failureCount=0
-    state.scheduled=false
+	atomicState.queue = [:]
+    atomicState.failureCount=0
+    atomicState.scheduled=false
 }
 
 def processQueue() {
-	state.scheduled=false
+	atomicState.scheduled=false
     log.debug "Processing Queue"
-    if (state.queue != [:]) {
+    if (atomicState.queue != [:]) {
         def url = "https://script.google.com/macros/s/${urlKey}/exec?"
-        for ( e in state.queue ) { url+="${e.key}=${e.value}&" }
+        for ( e in atomicState.queue ) { url+="${e.key}=${e.value}&" }
         url = url[0..-2]
         log.debug(url)
         try {
@@ -203,7 +189,7 @@ def processQueue() {
     			log.debug(response.status)
 				if (response.status != 200 ) {
 					log.debug "Google logging failed, status = ${response.status}"
-                    state.failureCount++
+                    atomicState.failureCount = atomicState.failureCount+1
                     scheduleQueue()
 				} else {
         			log.debug "Google accepted event(s)"
