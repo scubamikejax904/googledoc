@@ -62,9 +62,9 @@ def initialize() {
 	log.debug "Initialized"
 	subscribe(temperatures, "temperature", handleTemperatureEvent)
 	subscribe(contacts, "contact", handleContactEvent)
-    subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleTemperatureEvent)
+    subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleSetPointEvent)
     subscribe(energyMeters, "energy", handleEnergyEvent)
-    subscribe(powerMeters, "power", handleEnergyEvent)
+    subscribe(powerMeters, "power", handlePowerEvent)
 }
 
 def setOriginalState() {
@@ -84,6 +84,14 @@ def handleEnergyEvent(evt) {
     }
 }
 
+def handlePowerEvent(evt) {
+	if(settings.queueTime > 0) {
+    	queueValue(evt) { it.toString() }
+    } else {
+    	sendValue(evt) { it.toString() }
+    }
+}
+
 def handleTemperatureEvent(evt) {
 	if(settings.queueTime > 0) {
     	queueValue(evt) { it.toString() }
@@ -92,8 +100,20 @@ def handleTemperatureEvent(evt) {
     }
 }
 
+def handleSetPointEvent(evt) {
+	if(settings.queueTime > 0) {
+    	queueValue(evt) { it.toString() }
+    } else {
+    	sendValue(evt) { it.toString() }
+    }
+}
+
 def handleContactEvent(evt) {
-	sendValue(evt) { it == "open" ? "true" : "false" }
+	if(settings.queueTime > 0) {
+    	queueValue(evt) { it == "open" ? "true" : "false" }
+    } else {
+		sendValue(evt) { it == "open" ? "true" : "false" }
+    }
 }
 
 private sendValue(evt, Closure convert) {
