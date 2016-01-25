@@ -20,9 +20,9 @@ definition(
 		author: "Charles Schwer",
 		description: "Log to Google Sheets",
 		category: "My Apps",
-		iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
-		iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
-		iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
+		iconUrl: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets.png",
+		iconX2Url: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets@2x.png",
+		iconX3Url: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets@2x.png")
 
 preferences {
 	section("Log devices...") {
@@ -120,7 +120,6 @@ private queueValue(evt, Closure convert) {
 		def value = convert(evt.value)
     
     	log.debug "Logging to queue ${keyId} = ${value}"
-    	
         
 		if( atomicState.queue == [:] ) {
       		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
