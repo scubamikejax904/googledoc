@@ -27,6 +27,7 @@ definition(
 preferences {
 	section("Log devices...") {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
+        input "motions", "capability.motionSensor", title: "Motion Sensors", required: false, multiple: true
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "thermostatHeatSetPoint", "capability.thermostat", title: "Thermostat Heat Setpoints", required: false, multiple: true
         input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
@@ -62,6 +63,7 @@ def initialize() {
 	log.debug "Initialized"
 	subscribe(temperatures, "temperature", handleNumberEvent)
 	subscribe(contacts, "contact", handleContactEvent)
+	subscribe(motions, "motion", handleMotionEvent)
     subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleNumberEvent)
     subscribe(energyMeters, "energy", handleNumberEvent)
     subscribe(powerMeters, "power", handleNumberEvent)
@@ -92,10 +94,18 @@ def handleContactEvent(evt) {
     }
 }
 
+def handleMotionEvent(evt) {
+	if(settings.queueTime.toInteger() > 0) {
+    	queueValue(evt) { it == "active" ? "true" : "false" }
+    } else {
+		sendValue(evt) { it == "active" ? "true" : "false" }
+    }
+}
+
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
 	def value = convert(evt.value)
-    
+
 	log.debug "Logging to GoogleSheets ${keyId} = ${value}"
     
 	def url = "https://script.google.com/macros/s/${urlKey}/exec?${keyId}=${value}"
