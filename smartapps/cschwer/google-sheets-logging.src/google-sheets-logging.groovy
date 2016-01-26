@@ -25,9 +25,17 @@ definition(
 		iconX3Url: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets@2x.png")
 
 preferences {
-	section("Log devices...") {
+    section("Contact Sensors to Log") {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
+        input "contactLogType", "enum", title: "Value to log", options: ["open/close", "true/false", "1/0"], defaultValue: "open/close", required: true, multiple: false
+	}
+    
+    section("Motion Sensors to Log") {
         input "motions", "capability.motionSensor", title: "Motion Sensors", required: false, multiple: true
+        input "motionLogType", "enum", title: "Value to log", options: ["active/inactive", "true/false", "1/0"], defaultValue: "active/inactive", required: true, multiple: false
+    }
+	
+    section("Log Other Devices") {
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "thermostatHeatSetPoint", "capability.thermostat", title: "Thermostat Heat Setpoints", required: false, multiple: true
         input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
@@ -87,18 +95,32 @@ def handleNumberEvent(evt) {
 }
 
 def handleContactEvent(evt) {
+	// default to open/close, the value of the event
+    def convertClosure = { it }
+    if (contactLogType == "true/false")
+    	convertClosure = { it == "open" ? "true" : "false" }
+    else if ( contactLogType == "1/0")
+    	convertClosure = { it == "open" ? "1" : "0" }
+
 	if(settings.queueTime.toInteger() > 0) {
-    	queueValue(evt) { it == "open" ? "true" : "false" }
+		queueValue(evt, convertClosure)
     } else {
-		sendValue(evt) { it == "open" ? "true" : "false" }
+		sendValue(evt, convertClosure)
     }
 }
 
 def handleMotionEvent(evt) {
+	// default to active/inactive, the value of the event
+    def convertClosure = { it }
+    if (motionLogType == "true/false")
+    	convertClosure = { it == "active" ? "true" : "false" }
+    else if (motionLogType == "1/0")
+    	convertClosure = { it == "active" ? "1" : "0" }
+
 	if(settings.queueTime.toInteger() > 0) {
-    	queueValue(evt) { it == "active" ? "true" : "false" }
+    	queueValue(evt, convertClosure)
     } else {
-		sendValue(evt) { it == "active" ? "true" : "false" }
+		sendValue(evt, convertClosure)
     }
 }
 
