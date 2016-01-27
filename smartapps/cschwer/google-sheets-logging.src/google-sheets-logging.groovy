@@ -228,10 +228,9 @@ def processQueue() {
                 }
             }
             atomicState.queue = [:]
-            atomicState.queue = [:]
             atomicState.failureCount=0
-            atomicState.scheduled=falseatomicState.failureCount=0
-            atomicState.scheduled=false} catch(e) {
+            atomicState.scheduled=false
+        } catch(e) {
             def errorInfo = "Error sending value: ${e}"
             log.error errorInfo
         }
