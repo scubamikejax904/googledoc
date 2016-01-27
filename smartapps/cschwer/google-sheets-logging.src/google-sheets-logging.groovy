@@ -27,7 +27,7 @@ definition(
 preferences {
     section("Contact Sensors to Log") {
 		input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
-        input "contactLogType", "enum", title: "Value to log", options: ["open/close", "true/false", "1/0"], defaultValue: "open/close", required: true, multiple: false
+        input "contactLogType", "enum", title: "Value to log", options: ["open/closed", "true/false", "1/0"], defaultValue: "open/closed", required: true, multiple: false
 	}
     
     section("Motion Sensors to Log") {
@@ -126,7 +126,7 @@ def handleMotionEvent(evt) {
 
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
-	def value = convert(evt.value)
+	def value = URLEncoder.encode(convert(evt.value))
 
 	log.debug "Logging to GoogleSheets ${keyId} = ${value}"
     
@@ -149,7 +149,7 @@ private queueValue(evt, Closure convert) {
 	if( evt?.value ) {
     	
     	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
-		def value = convert(evt.value)
+		def value = URLEncoder.encode(convert(evt.value))
     
     	log.debug "Logging to queue ${keyId} = ${value}"
         
@@ -199,13 +199,13 @@ def scheduleQueue() {
 
 
 private resetState() {
-	atomicState.queue = [:]
+    atomicState.queue = [:]
     atomicState.failureCount=0
     atomicState.scheduled=false
 }
 
 def processQueue() {
-	atomicState.scheduled=false
+    atomicState.scheduled=false
     log.debug "Processing Queue"
     if (atomicState.queue != [:]) {
         def url = "https://script.google.com/macros/s/${urlKey}/exec?"
@@ -213,23 +213,27 @@ def processQueue() {
         url = url[0..-2]
         log.debug(url)
         try {
-			def putParams = [
-				uri: url]
+            def putParams = [
+                uri: url]
 
-			httpGet(putParams) { response ->
-    			log.debug(response.status)
-				if (response.status != 200 ) {
-					log.debug "Google logging failed, status = ${response.status}"
+            httpGet(putParams) { response ->
+                log.debug(response.status)
+                if (response.status != 200 ) {
+                    log.debug "Google logging failed, status = ${response.status}"
                     atomicState.failureCount = atomicState.failureCount+1
                     scheduleQueue()
-				} else {
-        			log.debug "Google accepted event(s)"
+                } else {
+                    log.debug "Google accepted event(s)"
                     resetState()
-        		}
-			}
-        } catch(e) {
+                }
+            }
+            atomicState.queue = [:]
+            atomicState.queue = [:]
+            atomicState.failureCount=0
+            atomicState.scheduled=falseatomicState.failureCount=0
+            atomicState.scheduled=false} catch(e) {
             def errorInfo = "Error sending value: ${e}"
             log.error errorInfo
         }
-	}
+    }
 }
