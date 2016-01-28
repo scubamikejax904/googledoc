@@ -34,12 +34,21 @@ preferences {
         input "motions", "capability.motionSensor", title: "Motion Sensors", required: false, multiple: true
         input "motionLogType", "enum", title: "Value to log", options: ["active/inactive", "true/false", "1/0"], defaultValue: "active/inactive", required: true, multiple: false
     }
+    
+    section("Thermostat Settings") {
+        input "heatingSetPoints", "capability.thermostat", title: "Heating Setpoints", required: false, multiple: true
+        input "coolingSetPoints", "capability.thermostat", title: "Cooling Setpoints", required: false, multiple: true
+        input "thermOperatingStates", "capability.thermostat", title: "Operating States", required: false, multiple: true
+    }
 	
     section("Log Other Devices") {
 		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
-        input "thermostatHeatSetPoint", "capability.thermostat", title: "Thermostat Heat Setpoints", required: false, multiple: true
         input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
         input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
+        input "humidities", "capability.relativeHumidityMeasurement", title: "Humidity Sensors", required: false, multiple: true
+        input "illuminances", "capability.illuminanceMeasurement", title: "Illuminance Sensors", required: false, multiple: true
+        input "presenceSensors", "capability.presenceSensor", title: "Presence Sensors", required: false, multiple: true
+        input "switches", "capability.switch", title: "Switches", required: false, multiple: true
 	}
 
 	section ("Google Sheets script url key...") {
@@ -69,12 +78,20 @@ def updated() {
 
 def initialize() {
 	log.debug "Initialized"
-	subscribe(temperatures, "temperature", handleNumberEvent)
 	subscribe(contacts, "contact", handleContactEvent)
 	subscribe(motions, "motion", handleMotionEvent)
-    subscribe(thermostatHeatSetPoint, "heatingSetpoint", handleNumberEvent)
+    
+    subscribe(heatingSetPoints, "heatingSetpoint", handleNumberEvent)
+    subscribe(coolingSetPoints, "coolingSetpoint", handleNumberEvent)
+	subscribe(thermOperatingStates, "thermostatOperatingState", handleStringEvent)
+
+	subscribe(temperatures, "temperature", handleNumberEvent)
     subscribe(energyMeters, "energy", handleNumberEvent)
     subscribe(powerMeters, "power", handleNumberEvent)
+    subscribe(humidities, "humidity", handleNumberEvent)
+    subscribe(illuminances, "illuminance", handleNumberEvent)
+    subscribe(presenceSensors, "presence", handleStringEvent)
+    subscribe(switches, "switch", handleStringEvent)
 }
 
 def setOriginalState() {
@@ -84,6 +101,15 @@ def setOriginalState() {
     atomicState.failureCount=0
     atomicState.scheduled=false
     atomicState.lastSchedule=0
+}
+
+def handleStringEvent(evt) {
+log.debug "handling string event ${evt}"
+	if(settings.queueTime.toInteger() > 0) {
+    	queueValue(evt) { it }
+    } else {
+    	sendValue(evt) { it }
+    }
 }
 
 def handleNumberEvent(evt) {
