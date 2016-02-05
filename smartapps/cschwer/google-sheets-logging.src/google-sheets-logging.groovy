@@ -49,6 +49,8 @@ preferences {
         input "illuminances", "capability.illuminanceMeasurement", title: "Illuminance Sensors", required: false, multiple: true
         input "presenceSensors", "capability.presenceSensor", title: "Presence Sensors", required: false, multiple: true
         input "switches", "capability.switch", title: "Switches", required: false, multiple: true
+        input "sensors", "capability.sensor", title: "Sensors", required: false, multiple: true
+        input "sensorAttributes", "text", title: "Sensor Attributes (comma delimited)", required: false
 	}
 
 	section ("Google Sheets script url key...") {
@@ -92,6 +94,11 @@ def initialize() {
     subscribe(illuminances, "illuminance", handleNumberEvent)
     subscribe(presenceSensors, "presence", handleStringEvent)
     subscribe(switches, "switch", handleStringEvent)
+    if (sensors != null && sensorAttributes != null) {
+        sensorAttributes.tokenize(',').each {
+	    subscribe(sensors, it, handleStringEvent)
+        }
+    }
 }
 
 def setOriginalState() {
