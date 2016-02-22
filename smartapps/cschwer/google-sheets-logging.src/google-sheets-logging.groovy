@@ -154,7 +154,7 @@ private queueValue(evt, Closure convert) {
     	log.debug "Logging to queue ${keyId} = ${value}"
         
 		if( atomicState.queue == [:] ) {
-      		def eventTime = URLEncoder.encode(evt.date.format( 'M-d-yyyy HH:mm:ss', location.timeZone ))
+      		def eventTime = URLEncoder.encode(evt.date.format( 'yyyy-M-d HH:mm:ss', location.timeZone ))
             addToQueue("Time", eventTime)
     	}
 		addToQueue(keyId, value)
