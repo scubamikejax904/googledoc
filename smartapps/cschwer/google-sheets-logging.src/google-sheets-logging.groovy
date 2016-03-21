@@ -41,9 +41,14 @@ preferences {
         input "thermOperatingStates", "capability.thermostat", title: "Operating States", required: false, multiple: true
     }
 	
+    section("Locks to Log") {
+    	input "locks", "capability.lock", title: "Locks", multiple: true, required: false
+        input "lockLogType", "enum", title: "Value to log", options: ["locked/unlocked", "true/false", "1/0"], defaultValue: "locked/unlocked", required: true, multiple: false
+	}
+    
     section("Log Other Devices") {
     	input "batteries", "capability.battery", title: "Batteries", multiple: true, required: false
-	input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
+		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
         input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
         input "humidities", "capability.relativeHumidityMeasurement", title: "Humidity Sensors", required: false, multiple: true
@@ -81,6 +86,7 @@ def updated() {
 
 def initialize() {
 	log.debug "Initialized"
+    subscribe(locks, "lock", handleLockEvent)
 	subscribe(batteries, "battery", handleNumberEvent)
 	subscribe(contacts, "contact", handleContactEvent)
 	subscribe(motions, "motion", handleMotionEvent)
@@ -156,6 +162,22 @@ def handleMotionEvent(evt) {
 		sendValue(evt, convertClosure)
     }
 }
+
+def handleLockEvent(evt) {
+	// default to locked/unlocked, the value of the event
+    def convertClosure = { it }
+    if (lockLogType == "true/false") {
+		convertClosure = { it == "locked" ? "true" : "false" }
+    }else if (lockLogType == "1/0") {
+    	convertClosure = { it == "locked" ? "1" : "0" }
+	}
+	if(settings.queueTime.toInteger() > 0) {
+    	queueValue(evt, convertClosure)
+    } else {
+		sendValue(evt, convertClosure)
+    }
+}
+
 
 private sendValue(evt, Closure convert) {
 	def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
