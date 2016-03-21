@@ -42,7 +42,8 @@ preferences {
     }
 	
     section("Log Other Devices") {
-		input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
+    	input "batteries", "capability.battery", title: "Batteries", multiple: true, required: false
+	input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
         input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
         input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
         input "humidities", "capability.relativeHumidityMeasurement", title: "Humidity Sensors", required: false, multiple: true
@@ -80,25 +81,24 @@ def updated() {
 
 def initialize() {
 	log.debug "Initialized"
+	subscribe(batteries, "battery", handleNumberEvent)
 	subscribe(contacts, "contact", handleContactEvent)
 	subscribe(motions, "motion", handleMotionEvent)
-    
-    subscribe(heatingSetPoints, "heatingSetpoint", handleNumberEvent)
-    subscribe(coolingSetPoints, "coolingSetpoint", handleNumberEvent)
+	subscribe(heatingSetPoints, "heatingSetpoint", handleNumberEvent)
+	subscribe(coolingSetPoints, "coolingSetpoint", handleNumberEvent)
 	subscribe(thermOperatingStates, "thermostatOperatingState", handleStringEvent)
-
 	subscribe(temperatures, "temperature", handleNumberEvent)
-    subscribe(energyMeters, "energy", handleNumberEvent)
-    subscribe(powerMeters, "power", handleNumberEvent)
-    subscribe(humidities, "humidity", handleNumberEvent)
-    subscribe(illuminances, "illuminance", handleNumberEvent)
-    subscribe(presenceSensors, "presence", handleStringEvent)
-    subscribe(switches, "switch", handleStringEvent)
-    if (sensors != null && sensorAttributes != null) {
-        sensorAttributes.tokenize(',').each {
-	    subscribe(sensors, it, handleStringEvent)
-        }
-    }
+	subscribe(energyMeters, "energy", handleNumberEvent)
+	subscribe(powerMeters, "power", handleNumberEvent)
+	subscribe(humidities, "humidity", handleNumberEvent)
+	subscribe(illuminances, "illuminance", handleNumberEvent)
+	subscribe(presenceSensors, "presence", handleStringEvent)
+	subscribe(switches, "switch", handleStringEvent)
+	if (sensors != null && sensorAttributes != null) {
+		sensorAttributes.tokenize(',').each {
+			subscribe(sensors, it, handleStringEvent)
+			}
+	}
 }
 
 def setOriginalState() {
