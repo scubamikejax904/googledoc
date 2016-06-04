@@ -20,9 +20,9 @@ definition(
 		author: "Charles Schwer",
 		description: "Log to Google Sheets",
 		category: "My Apps",
-		iconUrl: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets.png",
-		iconX2Url: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets@2x.png",
-		iconX3Url: "https://raw.githubusercontent.com/cschwer/googleDocsLogging/master/img/logoSheets@2x.png")
+		iconUrl: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets.png",
+		iconX2Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png",
+		iconX3Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png")
 
 preferences {
     section("Contact Sensors to Log") {
