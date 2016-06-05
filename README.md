@@ -41,7 +41,7 @@
 
  5. Extract URL key for your new webapp, it is between /s/ and /exec.
    `AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4`  
-   You will need to enter this into the SmartApp below
+   You will need to enter this into the SmartApp below.
 
 7. (Optional): Test out your new webapp, add this to the end of the URL from step 6: `?Temp1=15&Temp2=30`  
    E.g., https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec?Temp1=15&Temp2=30  
@@ -83,6 +83,6 @@
 
 2. Select events you want to log under "Log devices..."
 
-3. Enter URL key from step 11 under "URL key"
+3. Enter URL key from step 6(v) under "URL key"
 
 4. Click Done!
