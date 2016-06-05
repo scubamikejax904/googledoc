@@ -58,7 +58,8 @@
 
 3. Use **either** Github Integration (step 4) or Manual (step 5)
 
-4. Github Integration
+4. Github Integration  
+   (See this link if this is your first time using GitHub Integration: http://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html)
    1. Click Settings
    2. Add this repo:  
       Owner: `loverso-smartthings`  
