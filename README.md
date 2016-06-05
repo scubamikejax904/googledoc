@@ -44,9 +44,10 @@
    You will need to enter this into the SmartApp below
 
 7. (Optional): Test out your new webapp, add this to the end of the URL from step 6: `?Temp1=15&Temp2=30`  
-   E.g., https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec?Temp1=15&Temp2=30
+   E.g., https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec?Temp1=15&Temp2=30  
+   A successful test will return the message `The script completed but did not return anything.`
 
-   **If you do test it, make sure you delete the test data from the spreadsheet.  Just delete any rows added after row 1.**
+   **If you do test it, make sure you delete the test data from the spreadsheet.  Just delete any rows added after row 1 and any test columns**
 
 ## Create the SmartApp
 
