@@ -50,10 +50,8 @@
 
 ## Create the SmartApp
 
-In the SmartThings IDE, add the google-sheets-logging Smartapp from this Github repo to your account.
-smartapps/cschwer/google-sheets-logging.src/google-sheets-logging.groovy
-
-1. Login to the the SmartThings IDE at https://graph.api.smartthings.com/. Make an account if you haven't already.
+1. Login to the the SmartThings IDE at https://graph.api.smartthings.com/  
+   (Make an account if you haven't already)
 
 2. Go to "My SmartApps"
 
