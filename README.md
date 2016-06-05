@@ -1,63 +1,89 @@
 # SmartThings Google Sheets Logging
 
-step 1: Create a new spreadsheet: http://docs.google.com/spreadsheets/create
+## Create the Spreadsheet
 
-step 2: Name the spreadsheet whatever you want
+1. Create a new spreadsheet: http://docs.google.com/spreadsheets/create
 
-step 3: Get your new spreadsheet ID from URL. Example:
-https://docs.google.com/spreadsheets/d/169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk/edit#gid=0  
+2. Name the spreadsheet file whatever you want
+
+3. Get your new spreadsheet ID from the URL. Example:
+ https://docs.google.com/spreadsheets/d/169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk/edit#gid=0  
 	example id is "169v40OsFOaGHO6uQwuuMx2hlWK-wvYCzrr93FAWivHk"
 	
-![alt tag](img/stgsl4.png)
+ ![alt tag](img/stgsl4.png)
 
-step 4: Add the single title "Time" in cell A1.  You might consider selecting View -> Freeze -> 1 Row 
+4. Add the single value "Time" in cell A1.  You might consider selecting View -> Freeze -> 1 Row 
 
-step 5: Open script: Click Tools -> Script Editor.
+5. Create the helper script
+ 1.  Open script: Click Tools -> Script Editor.  Optionally change the name of the project (default "Untitiled project")  
+    ![alt tag](img/stgsl5.png)
 
-![alt tag](img/stgsl5.png)
+ 2. Copy the contents of Code.gs to replace the stub "function myFunction"
+ 3. On line 4, Replace "REPLACE ME WITH SPREADSHEET ID" with sheet id from step 3  
+   ![alt tag](img/stgsl6.png)
 
-Step 6a: Copy the contents of Code.gs to replace the stub "function myFunction"
+ 4. If you changed the name of the sheet (the name in the tab at the bottom of the spreadsheet, not the name of the file), update it on line 5. (defaults to "Sheet1").
 
-Step 6b: On line 4, Replace "REPLACE ME WITH SPREADSHEET ID" with sheet id from step 3
+6. Deploy helper script as webapp
+ 1. Deploy webapp: Click Publish -> Deploy as web app  
+   ![alt tag](img/stgsl7.png)
 
-![alt tag](img/stgsl6.png)
+ 2. Change Who has access to the webapp to "Anyone, even anonymous".  Please note, if any one gets a hold of your published endpoint, they will be able to send data to your spreadsheet, but they will not be able to view any of it.  
+   ![alt tag](img/stgsl8.png)
 
-Step 6c: If you change the name of the sheet, update it on line 5. (defaults to "Sheet1").
+ 3. Approve the access to the app  
+   ![alt tag](img/stgsl9.png)
+   ![alt tag](img/stgsl9b.png)
 
-Step 6d: Name the project (change "Untitiled project")
+ 4. Copy the URL on the confirmation page.  
+   E.g.: https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec  
+   ![alt tag](img/stgsl10.png)
 
-Step 7: Deploy webapp: Click Publish -> Deploy as web app...
+ 5. Extract URL key for your new webapp, it is between /s/ and /exec.
+   `AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4`  
+   You will need to enter this into the SmartApp below
 
-![alt tag](img/stgsl7.png)
+7. (Optional): Test out your new webapp, add this to the end of the URL from step 6: `?Temp1=15&Temp2=30`  
+   E.g., https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec?Temp1=15&Temp2=30
 
-Step 8: Change Who has access to the app to "Anyone, even anonymous".  Please note, if any one gets a hold of your published endpoint, they will be able to send data to your spreadsheet but they will not be able to view any of it.
+   **If you do test it, make sure you delete the test data from the spreadsheet.  Just delete any rows added after row 1.**
 
-![alt tag](img/stgsl8.png)
+## Create the SmartApp
 
-Step 9: Approve the access to the app
-
-![alt tag](img/stgsl9.png)
-![alt tag](img/stgsl9b.png)
-
-Step 10: Copy the url on the confirmation page, Example:
-https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec
-
-![alt tag](img/stgsl10.png)
-
-Step 11: Extract Url key for your new webapp, it is between /s/ and /exec: AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4
-
-Step 12 (Optional): Test out your new webapp, add this to the end of the url from step 10: ?Temp1=15&Temp2=30
-ie: https://script.google.com/macros/s/AKfycbzY2jj4l7RSpFYfN62xra0HmcXPQXAUI17z6KKHWiT3OYyhUC4/exec?Temp1=15&Temp2=30
-
-Step 13 (Optional): Delete test data from spreadsheet, you should have new values in B1, C1, A2, B2, C2, delete all the test data
-
-Step 14: In the SmartThings IDE, create a new Smartapp From Code using
+In the SmartThings IDE, add the google-sheets-logging Smartapp from this Github repo to your account.
 smartapps/cschwer/google-sheets-logging.src/google-sheets-logging.groovy
 
-Step 15: In Smartthings App go to marketplace -> Smartapps -> My Apps -> Google Sheets Logging
+1. Login to the the SmartThings IDE at https://graph.api.smartthings.com/. Make an account if you haven't already.
 
-Step 16: Select events you want to log under "Log devices..."
+2. Go to "My SmartApps"
 
-Step 17: Enter URL key from step 11 under "URL key"
+3. Use **either** Github Integration (step 4) or Manual (step 5)
 
-Step 18: Click Done!
+4. Github Integration
+   1. Click Settings
+   2. Add this repo:  
+      Owner: `loverso-smartthings`  
+      Name: `googleDocsLogging`  
+      Branch: `master`
+   3. Click Save
+   4. hit "Update from Repo" and select `googleDocsLogging (master)`
+   5. Under "New (Only in GitHub)" select "google-sheets-logging"
+   6. Select the checkbox next to "Publish"
+   7. Click "Execute Update"
+
+5. Manual creation **(If you didn't follow step 4)**
+   1. hit "+ New SmartApp" on the right, then select the "From Code" tab.
+   2, In another window, open the source code located in this repo at smartapps/cschwer/google-sheets-logging.src/google-sheets-logging.groovy
+      https://github.com/loverso-smartthings/googleDocsLogging/blob/master/smartapps/cschwer/google-sheets-logging.src/google-sheets-logging.groovy
+   3. Click "Raw" and copy all the code
+   4. Paste the code into the New SmartApp "From Code" box and click Create
+
+## Install the SmartApp
+
+1. In Smartthings App go to marketplace -> Smartapps -> My Apps -> Google Sheets Logging
+
+2. Select events you want to log under "Log devices..."
+
+3. Enter URL key from step 11 under "URL key"
+
+4. Click Done!
