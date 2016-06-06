@@ -29,7 +29,8 @@
    ![alt tag](img/stgsl7.png)
 
  2. Change Who has access to the webapp to "Anyone, even anonymous".  Please note, if any one gets a hold of your published endpoint, they will be able to send data to your spreadsheet, but they will not be able to view any of it.  
-   ![alt tag](img/stgsl8.png)
+   ![alt tag](img/stgsl8.png)  
+   Also: If you revise or fix your webapp code, **be sure to select `New` as the version** on the webapp publishing popup's Version drop-down. Otherwise you may continue to run the older version. Version management must be explicitly performed sometimes.
 
  3. Approve the access to the app  
    ![alt tag](img/stgsl9.png)
