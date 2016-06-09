@@ -232,7 +232,7 @@ private queueValue(evt, Closure convert) {
         
         if ( atomicState.queue == [:] ) {
             // format time in the same wasy as sheets does
-            def eventTime = URLEncoder.encode(evt.date.format( 'M/D/yyyy HH:mm:ss', location.timeZone ))
+            def eventTime = URLEncoder.encode(evt.date.format( 'M/d/yyyy HH:mm:ss', location.timeZone ))
             addToQueue("Time", eventTime)
         }
         addToQueue(keyId, value)
