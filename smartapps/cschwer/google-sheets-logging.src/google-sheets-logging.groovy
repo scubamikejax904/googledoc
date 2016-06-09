@@ -1,4 +1,4 @@
-/**
+/*
  * SmartThings example Code for Google sheets logging
  *
  * Copyright 2016 Charles Schwer
@@ -11,7 +11,6 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  * for the specific language governing permissions and limitations under the License.
- *
  */
 
 definition(
@@ -27,12 +26,12 @@ definition(
 preferences {
     section("Contact Sensors to Log") {
         input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
-        input "contactLogType", "enum", title: "Value to log", options: ["open/closed", "true/false", "1/0"], defaultValue: "open/closed", required: true, multiple: false
+        input "contactLogType", "enum", title: "Values to log", options: ["open/closed", "true/false", "1/0"], defaultValue: "open/closed", required: true, multiple: false
     }
     
     section("Motion Sensors to Log") {
         input "motions", "capability.motionSensor", title: "Motion Sensors", required: false, multiple: true
-        input "motionLogType", "enum", title: "Value to log", options: ["active/inactive", "true/false", "1/0"], defaultValue: "active/inactive", required: true, multiple: false
+        input "motionLogType", "enum", title: "Values to log", options: ["active/inactive", "true/false", "1/0"], defaultValue: "active/inactive", required: true, multiple: false
     }
     
     section("Thermostat Settings") {
@@ -43,29 +42,39 @@ preferences {
     
     section("Locks to Log") {
         input "locks", "capability.lock", title: "Locks", multiple: true, required: false
-        input "lockLogType", "enum", title: "Value to log", options: ["locked/unlocked", "true/false", "1/0"], defaultValue: "locked/unlocked", required: true, multiple: false
+        input "lockLogType", "enum", title: "Values to log", options: ["locked/unlocked", "true/false", "1/0"], defaultValue: "locked/unlocked", required: true, multiple: false
     }
     
     section("Log Other Devices") {
-        input "batteries", "capability.battery", title: "Batteries", multiple: true, required: false
-        input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required:false, multiple: true
-        input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
-        input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
+        input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required: false, multiple: true
         input "humidities", "capability.relativeHumidityMeasurement", title: "Humidity Sensors", required: false, multiple: true
         input "illuminances", "capability.illuminanceMeasurement", title: "Illuminance Sensors", required: false, multiple: true
         input "presenceSensors", "capability.presenceSensor", title: "Presence Sensors", required: false, multiple: true
         input "switches", "capability.switch", title: "Switches", required: false, multiple: true
+        input "dimmerSwitches", "capability.switchLevel", title: "Dimmer Switches", required: false, multiple: true
+        input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
+        input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
+        input "batteries", "capability.battery", title: "Batteries", multiple: true, required: false
         input "sensors", "capability.sensor", title: "Sensors", required: false, multiple: true
         input "sensorAttributes", "text", title: "Sensor Attributes (comma delimited)", required: false
     }
+//      input "detectors", "capability.smokeDetector", title: "Smoke/CarbonMonoxide Detectors", required: false, multiple: true
+//      input "watersensors", "capability.waterSensor", title: "Water Sensors", required: false, multiple: true
+//      input "accelerations", "capability.accelerationSensor", title: "Acceleration Sensors", required: false, multiple: true
 
-    section ("Google Sheets script url key...") {
-        input "urlKey", "text", title: "URL key"
+    section ("Google Sheets") {
+        input "urlKey", "text", title: "Script URL key", required: true
+        input "appsDomain", "text", title: "Apps domainname", description: "Only set this if not using google.com", required: false
     }
     
     section ("Technical settings") {
-        input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "5", "10", "15"], defaultValue:"5"
+        input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "1", "5", "10", "15"], defaultValue:"5"
         input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
+    }
+
+    section("About") {
+        paragraph "Version 1.1"
+        href url:"https://github.com/loverso-smartthings/googleDocsLogging", style:"embedded", required:false, title:"Installation instructions"
     }
 }
 
@@ -100,10 +109,12 @@ def initialize() {
     subscribe(illuminances, "illuminance", handleNumberEvent)
     subscribe(presenceSensors, "presence", handleStringEvent)
     subscribe(switches, "switch", handleStringEvent)
+    subscribe(dimmerSwitches, "switch", handleStringEvent)
+    subscribe(dimmerSwitches, "level", handleNumberEvent)
     if (sensors != null && sensorAttributes != null) {
         sensorAttributes.tokenize(',').each {
             subscribe(sensors, it, handleStringEvent)
-            }
+        }
     }
 }
 
@@ -168,7 +179,7 @@ def handleLockEvent(evt) {
     def convertClosure = { it }
     if (lockLogType == "true/false") {
         convertClosure = { it == "locked" ? "true" : "false" }
-    }else if (lockLogType == "1/0") {
+    } else if (lockLogType == "1/0") {
         convertClosure = { it == "locked" ? "1" : "0" }
     }
     if (settings.queueTime.toInteger() > 0) {
@@ -178,6 +189,16 @@ def handleLockEvent(evt) {
     }
 }
 
+private def baseUrl() {
+    String url = "https://script.google.com/"
+    if (settings.appsDomain != null) url += "a/"
+    url += "macros/"
+    if (settings.appsDomain != null) url += "${appsDomain}/"
+    url += "s/${urlKey}/exec?"
+
+    log.debug "url ["+url+"]"
+    return url
+}
 
 private sendValue(evt, Closure convert) {
     def keyId = URLEncoder.encode(evt.displayName.trim()+ " " +evt.name)
@@ -185,11 +206,12 @@ private sendValue(evt, Closure convert) {
 
     log.debug "Logging to GoogleSheets ${keyId} = ${value}"
     
-    def url = "https://script.google.com/macros/s/${urlKey}/exec?${keyId}=${value}"
+    def url = baseUrl() + "${keyId}=${value}"
     log.debug "${url}"
     
     def putParams = [
-        uri: url]
+        uri: url
+    ]
 
     httpGet(putParams) { response ->
         log.debug(response.status)
@@ -209,7 +231,8 @@ private queueValue(evt, Closure convert) {
         log.debug "Logging to queue ${keyId} = ${value}"
         
         if ( atomicState.queue == [:] ) {
-            def eventTime = URLEncoder.encode(evt.date.format( 'yyyy-M-d HH:mm:ss', location.timeZone ))
+            // format time in the same wasy as sheets does
+            def eventTime = URLEncoder.encode(evt.date.format( 'M/D/yyyy HH:mm:ss', location.timeZone ))
             addToQueue("Time", eventTime)
         }
         addToQueue(keyId, value)
@@ -263,13 +286,14 @@ def processQueue() {
     atomicState.scheduled=false
     log.debug "Processing Queue"
     if (atomicState.queue != [:]) {
-        def url = "https://script.google.com/macros/s/${urlKey}/exec?"
+        def url = baseUrl()
         for ( e in atomicState.queue ) { url+="${e.key}=${e.value}&" }
         url = url[0..-2]
         log.debug(url)
         try {
             def putParams = [
-                uri: url]
+                uri: url
+            ]
 
             httpGet(putParams) { response ->
                 log.debug(response.status)
