@@ -17,7 +17,8 @@ function doGet(request) {
       var foundRow=false;
       for(var x=0;x<sheetHeaders[0].length;x++) {
         if(i.toString().toLowerCase()==sheetHeaders[0][x].toString().toLowerCase()) {
-          newRow[x]=request.parameter[i];
+          var currentpar = request.parameter[i];
+          isNaN(currentpar) ? newRow[x] = currentpar : newRow[x] = Number(currentpar);
           foundRow=true;
           break;
         }
@@ -44,5 +45,6 @@ function doGet(request) {
     // Appends a new row to the bottom of the
     // spreadsheet containing the values in the array
     sheet.appendRow(newRow);
+    sheet.getRange(sheet.getLastRow()-1, 1, 1, sheet.getLastColumn()).copyFormatToRange(sheet, 1, sheet.getLastColumn(), sheet.getLastRow(), sheet.getLastRow());  // New from SEBASTIAN CORONA FERNANDEZ 11/8/16 in Sheet chat (!)
   }
 }
