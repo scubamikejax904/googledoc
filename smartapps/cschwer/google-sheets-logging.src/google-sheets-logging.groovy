@@ -14,15 +14,15 @@
  */
 
 definition(
-        name: "${appName()}",
-        namespace: "cschwer",
-        author: "Charles Schwer",
-        description: "Log to Google Sheets",
-        category: "My Apps",
-        singleInstance: true,
-        iconUrl: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets.png",
-        iconX2Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png",
-        iconX3Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png")
+    name: "${appName()}",
+    namespace: "cschwer",
+    author: "Charles Schwer",
+    description: "Log to Google Sheets",
+    category: "My Apps",
+    singleInstance: true,
+    iconUrl: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets.png",
+    iconX2Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png",
+    iconX3Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png")
 
 preferences {
     page(name: "startPage")
@@ -39,75 +39,77 @@ def startPage() {
 }
 
 def parentPage() {
-	return dynamicPage(name: "parentPage", title: "", nextPage: "", install: true, uninstall: true) {
+    return dynamicPage(name: "parentPage", title: "", nextPage: "", install: true, uninstall: true) {
         section("Create a new logging automation.") {
             app(name: "childApps", appName: appName(), namespace: "cschwer", title: "Google Sheets Logging Automation", multiple: true)
         }
         
         section("About") {
-        	paragraph "Version 1.2"
-        	href url:"https://github.com/loverso-smartthings/googleDocsLogging", style:"embedded", required:false, title:"Installation instructions"
-    	}
+            paragraph "Version 1.3"
+            href url:"https://github.com/loverso-smartthings/googleDocsLogging", style:"embedded", required:false, title:"Installation instructions"
+        }
     }
 }
 
 def childStartPage() {
-	return dynamicPage(name: "childStartPage", title: "", install: true, uninstall: true) { 
+    return dynamicPage(name: "childStartPage", title: "", install: true, uninstall: true) { 
         section("Contact Sensors to Log") {
-        	input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
-        	input "contactLogType", "enum", title: "Values to log", options: ["open/closed", "true/false", "1/0"], defaultValue: "open/closed", required: true, multiple: false
-    	}
+            input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
+            input "contactLogType", "enum", title: "Values to log", options: ["open/closed", "true/false", "1/0"], defaultValue: "open/closed", required: true, multiple: false
+        }
     
-    	section("Motion Sensors to Log") {
-        	input "motions", "capability.motionSensor", title: "Motion Sensors", required: false, multiple: true
-        	input "motionLogType", "enum", title: "Values to log", options: ["active/inactive", "true/false", "1/0"], defaultValue: "active/inactive", required: true, multiple: false
-    	}
+        section("Motion Sensors to Log") {
+            input "motions", "capability.motionSensor", title: "Motion Sensors", required: false, multiple: true
+            input "motionLogType", "enum", title: "Values to log", options: ["active/inactive", "true/false", "1/0"], defaultValue: "active/inactive", required: true, multiple: false
+        }
     
-    	section("Thermostat Settings") {
-        	input "heatingSetPoints", "capability.thermostat", title: "Heating Setpoints", required: false, multiple: true
-        	input "coolingSetPoints", "capability.thermostat", title: "Cooling Setpoints", required: false, multiple: true
-        	input "thermOperatingStates", "capability.thermostat", title: "Operating States", required: false, multiple: true
-    	}
+        section("Thermostat Settings") {
+            input "heatingSetPoints", "capability.thermostat", title: "Heating Setpoints", required: false, multiple: true
+            input "coolingSetPoints", "capability.thermostat", title: "Cooling Setpoints", required: false, multiple: true
+            input "thermOperatingStates", "capability.thermostat", title: "Operating States", required: false, multiple: true
+        }
     
-    	section("Locks to Log") {
-        	input "locks", "capability.lock", title: "Locks", multiple: true, required: false
-        	input "lockLogType", "enum", title: "Values to log", options: ["locked/unlocked", "true/false", "1/0"], defaultValue: "locked/unlocked", required: true, multiple: false
-    	}
+        section("Locks to Log") {
+            input "locks", "capability.lock", title: "Locks", multiple: true, required: false
+            input "lockLogType", "enum", title: "Values to log", options: ["locked/unlocked", "true/false", "1/0"], defaultValue: "locked/unlocked", required: true, multiple: false
+        }
     
-    	section("Log Other Devices") {
-        	input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required: false, multiple: true
-        	input "humidities", "capability.relativeHumidityMeasurement", title: "Humidity Sensors", required: false, multiple: true
-        	input "illuminances", "capability.illuminanceMeasurement", title: "Illuminance Sensors", required: false, multiple: true
-        	input "presenceSensors", "capability.presenceSensor", title: "Presence Sensors", required: false, multiple: true
-        	input "switches", "capability.switch", title: "Switches", required: false, multiple: true
-        	input "dimmerSwitches", "capability.switchLevel", title: "Dimmer Switches", required: false, multiple: true
-        	input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
-        	input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
-        	input "batteries", "capability.battery", title: "Batteries", multiple: true, required: false
-        	input "sensors", "capability.sensor", title: "Sensors", required: false, multiple: true
-        	input "sensorAttributes", "text", title: "Sensor Attributes (comma delimited)", required: false
-    	}
+        section("Log Other Devices") {
+            input "temperatures", "capability.temperatureMeasurement", title: "Temperatures", required: false, multiple: true
+            input "humidities", "capability.relativeHumidityMeasurement", title: "Humidity Sensors", required: false, multiple: true
+            input "illuminances", "capability.illuminanceMeasurement", title: "Illuminance Sensors", required: false, multiple: true
+            input "presenceSensors", "capability.presenceSensor", title: "Presence Sensors", required: false, multiple: true
+            input "switches", "capability.switch", title: "Switches", required: false, multiple: true
+            input "dimmerSwitches", "capability.switchLevel", title: "Dimmer Switches", required: false, multiple: true
+            input "energyMeters", "capability.energyMeter", title: "Energy Meters", required: false, multiple: true
+            input "powerMeters", "capability.powerMeter", title: "Power Meters", required: false, multiple: true
+            input "batteries", "capability.battery", title: "Batteries", multiple: true, required: false
+            input "sensors", "capability.sensor", title: "Sensors", required: false, multiple: true
+            input "sensorAttributes", "text", title: "Sensor Attributes (comma delimited)", required: false
+        }
 
-    	section ("Google Sheets") {
-        	input "urlKey", "text", title: "Script URL key", required: true
-        	input "appsDomain", "text", title: "Apps domainname", description: "Only set this if not using google.com", required: false
-    	}
+        section ("Google Sheets") {
+            input "urlKey", "text", title: "Script URL key", required: true
+            input "appsDomain", "text", title: "Apps domainname", description: "Only set this if not using google.com", required: false
+        }
     
-    	section ("Technical settings") {
-        	input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "1", "5", "10", "15"], defaultValue:"5"
-        	input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
-    	}
+        section ("Technical settings") {
+            input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "1", "5", "10", "15"], defaultValue:"5"
+            input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
+        }
         
         section([mobileOnly:true], "Options") {
-	    	label(title: "Assign a name", required: true)
-    	}
+            label(title: "Assign a name", required: true)
+        }
     }
 }
 
-private def appName() { return "${parent ? "Google Sheet Logging Automation" : "Google Sheets Logging"}" }
+private def appName() {
+    return "${parent ? "Google Sheet Logging Automation" : "Google Sheets Logging"}"
+}
 
 def installed() {
-	log.debug "installed"
+    log.debug "installed"
     setOriginalState()
     initialize()
 }
@@ -123,23 +125,21 @@ def updated() {
 }
 
 def initialize() {
-	log.debug "Begin intialization()."
-    
-    if(parent) { 
-    	initChild() 
+    if (parent) { 
+        initChild() 
     } else {
-    	initParent() 
+        initParent() 
     }
     
-    log.debug "End initialization()."
+    log.debug "End initialize()"
 }
 
 def initParent() {
-	log.debug "initParent()"
+    log.debug "initParent()"
 }
 
 def initChild() {
-    log.debug "Initialized"
+    log.debug "initChild()"
     
     unsubscribe()
     
@@ -176,7 +176,7 @@ def setOriginalState() {
 }
 
 def handleStringEvent(evt) {
-log.debug "handling string event ${evt}"
+    log.debug "handling string event ${evt}"
     if (settings.queueTime.toInteger() > 0) {
         queueValue(evt) { it }
     } else {
