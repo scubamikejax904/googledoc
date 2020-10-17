@@ -52,7 +52,7 @@
 
 ## Create the SmartApp
 
-1. Login to the the SmartThings IDE at https://graph.api.smartthings.com/  
+1. Login to the the SmartThings IDE at https://account.smartthings.com/
    (Make an account if you haven't already)
 
 2. Go to "My SmartApps"
