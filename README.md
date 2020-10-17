@@ -85,6 +85,6 @@
 
 2. Select events you want to log under "Log devices..."
 
-3. Enter URL key from step 6(v) under "URL key"
+3. Enter URL key from step 15 under "URL key"
 
 4. Click Done!
