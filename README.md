@@ -83,7 +83,7 @@
 
 1. In the SmartThings App, tap on the Automations tab, click on + in the upper right of the screen, select Add Routine and choose the Discover tab at the top. Scroll down to find the Google Sheets Logging smartapp.
 
-Alternately, you can install via the beta SmartThings web interface at https://my.smartthings.com/.  Login with your SmartThings account, click the plus in upper right corner, select Add Groovy SmartApp and then select Google Sheets Logging.
+   Alternately, you can install via the beta SmartThings web interface at https://my.smartthings.com/.  Login with your SmartThings account, click the plus in upper right corner, select Add Groovy SmartApp and then select Google Sheets Logging.
 
 2. Select events you want to log under "Log devices..."
 
