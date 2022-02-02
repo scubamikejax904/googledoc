@@ -15,7 +15,7 @@
 4. Add the single value "Time" in cell A1.  You might consider selecting View -> Freeze -> 1 Row 
 
 5. Create the helper script
- 1.  Open script: Click Tools -> Script Editor.  Optionally change the name of the project (default "Untitiled project")  
+ 1.  Open script: Click Extensions -> Apps Scripts.  Optionally change the name of the project (default "Untitiled project")  
     ![alt tag](img/stgsl5.png)
 
  2. Copy the contents of Code.gs to replace the stub "function myFunction"
@@ -28,7 +28,7 @@
  1. Deploy webapp: Click Publish -> Deploy as web app  
    ![alt tag](img/stgsl7.png)
 
- 2. Change Who has access to the webapp to "Anyone, even anonymous".  Please note, if any one gets a hold of your published endpoint, they will be able to send data to your spreadsheet, but they will not be able to view any of it.  
+ 2. Change Who has access to the webapp to "Anyone".  Please note, if any one gets a hold of your published endpoint, they will be able to send data to your spreadsheet, but they will not be able to view any of it.  
    ![alt tag](img/stgsl8.png)  
    Also: If you revise or fix your webapp code, **be sure to select `New` as the version** on the webapp publishing popup's Version drop-down. Otherwise you may continue to run the older version. Version management must be explicitly performed sometimes.
 
@@ -81,10 +81,12 @@
 
 ## Install the SmartApp
 
-1. In Smartthings App go to marketplace -> Smartapps -> My Apps -> Google Sheets Logging
+1. The recent verison of Smartthings App has no Marketplace. To install you have login to https://my.smartthings.com/  -> Click the plus in upper right corner -> Add Groovy SmartApp -> Google Sheets Logging
 
 2. Select events you want to log under "Log devices..."
 
 3. Enter URL key from step 15 under "URL key"
 
-4. Click Done!
+4. Enter a name of the smart app
+
+5. Click Done!
