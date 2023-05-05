@@ -1,5 +1,5 @@
 /*
- * SmartThings example Code for Google sheets logging
+ * Example Code for Google sheets logging
  *
  * Copyright 2016 Charles Schwer
  *
@@ -14,46 +14,22 @@
  */
 
 definition(
-    name: "${appName()}",
+    name: "Google Sheets Logging",
     namespace: "cschwer",
     author: "Charles Schwer",
     description: "Log to Google Sheets",
     category: "My Apps",
-    singleInstance: true,
-    iconUrl: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets.png",
-    iconX2Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png",
-    iconX3Url: "https://raw.githubusercontent.com/loverso-smartthings/googleDocsLogging/master/img/logoSheets@2x.png")
+    iconUrl: "",
+    iconX2Url: "",
+    iconX3Url: "")
 
 preferences {
     page(name: "startPage")
-    page(name: "parentPage")
-    page(name: "childStartPage")
 }
 
 def startPage() {
-    if (parent) {
-        childStartPage()
-    } else {
-        parentPage()
-    }
-}
-
-def parentPage() {
-    return dynamicPage(name: "parentPage", title: "", nextPage: "", install: true, uninstall: true) {
-        section("Create a new logging automation.") {
-            app(name: "childApps", appName: appName(), namespace: "cschwer", title: "Google Sheets Logging Automation", multiple: true)
-        }
-        
-        section("About") {
-            paragraph "Version 1.3"
-            href url:"https://github.com/loverso-smartthings/googleDocsLogging", style:"embedded", required:false, title:"Installation instructions"
-        }
-    }
-}
-
-def childStartPage() {
-    return dynamicPage(name: "childStartPage", title: "", install: true, uninstall: true) { 
-        section("Contact Sensors to Log") {
+    return dynamicPage(name: "startPage", title: "", install: true, uninstall: true) { 
+      section("Contact Sensors to Log") {
             input "contacts", "capability.contactSensor", title: "Doors open/close", required: false, multiple: true
             input "contactLogType", "enum", title: "Values to log", options: ["open/closed", "true/false", "1/0"], defaultValue: "open/closed", required: true, multiple: false
         }
@@ -94,18 +70,20 @@ def childStartPage() {
         }
     
         section ("Technical settings") {
-            input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "1", "5", "10", "15"], defaultValue:"5"
+            input "queueTime", "enum", title:"Time to queue events before pushing to Google (in minutes)", options: ["0", "1", "2", "3", "5", "10", "15"], defaultValue:"5"
             input "resetVals", "enum", title:"Reset the state values (queue, schedule, etc)", options: ["yes", "no"], defaultValue: "no"
         }
         
         section([mobileOnly:true], "Options") {
             label(title: "Assign a name", required: true)
         }
-    }
-}
+      
+        section("About") {
+            paragraph "Version 2.0"
+            href url:"https://github.com/cschwer/apps/tree/master/googleSheetsLogging", style:"embedded", required:false, title:"Installation instructions"
+        }
 
-private def appName() {
-    return "${parent ? "Google Sheet Logging Automation" : "Google Sheets Logging"}"
+    }
 }
 
 def installed() {
@@ -125,21 +103,7 @@ def updated() {
 }
 
 def initialize() {
-    if (parent) { 
-        initChild() 
-    } else {
-        initParent() 
-    }
-    
-    log.debug "End initialize()"
-}
-
-def initParent() {
-    log.debug "initParent()"
-}
-
-def initChild() {
-    log.debug "initChild()"
+    log.debug "initialize()"
     
     unsubscribe()
     
